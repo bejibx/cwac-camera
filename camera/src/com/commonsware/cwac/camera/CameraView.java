@@ -362,7 +362,7 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
                     {
                         try
                         {
-                            camera.takePicture(xact, null,
+                            camera.takePicture(host.getShutterCallback(), null,
                                     new PictureTransactionCallback(xact));
                         }
                         catch (Exception e)
