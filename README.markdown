@@ -20,6 +20,18 @@ but complex things may be a bit complex".
 In addition to what is written here,
 JavaDocs [are also available](http://javadocs.commonsware.com/cwac/camera/index.html).
 
+Library Objectives
+------------------
+The #1 objective of this library is maximum compatibility with hardware. As such,
+this library will not be suitable for all use cases.
+
+The targeted use case is an app that might otherwise have relied upon
+`ACTION_IMAGE_CAPTURE`, but needs greater reliablilty and somewhat greater
+control (e.g., capture images directly to internal storage).
+
+If you are trying to write "a camera app" &mdash; an app whose primary job is
+to take pictures &mdash; this library may be unsuitable for you.
+
 Installation
 ------------
 If you are using Gradle, or otherwise can use AAR artifacts,
@@ -74,7 +86,7 @@ there are two JARs in
 - `cwac-camera-X.Y.Z.jar` represents the core classes, used in all environments
 - `cwac-camera-v9-X.Y.Z.jar` adds support for ActionBarSherlock
 
-(where `X.Y.Z` is the version number of the project, such as `0.6.8`)
+(where `X.Y.Z` is the version number of the project, such as `0.6.10`)
 
 **NOTE**: The JAR name, as of v0.6.8, has a `cwac-` prefix, to help distinguish
 it from other JARs.
@@ -129,6 +141,12 @@ for use with native API Level 11+ fragments. The resulting video
 will be stored in the default videos directory (e.g., `Movies`) on external storage as
  `Video_yyyyMMdd_HHmmss.mp4`, where
 `yyyyMMdd_HHmmss` is replaced by the current date and time.
+
+Step #4: Add appropriate `<uses-permission>` elements to your manifest.
+For what is described in the preceding steps, you would need the `CAMERA`,
+`RECORD_AUDIO`, and `WRITE_EXTERNAL_STORAGE` permissions. `RECORD_AUDIO`
+is for the video recording using `startRecording()`; if you are only taking
+still photos, you will not need that permission.
 
 And that's it.
 
@@ -953,6 +971,7 @@ the fence may work, but it may not.
 
 Release Notes
 -------------
+- v0.6.10: addressed memory leaks and crashes due to inconsistent pause handling
 - v0.6.9: updated Gradle, fixed `-v9` manifest for merging, "fixed" issue #176
 - v0.6.8: yet more bug fixes, added `cwac-` prefix to JAR
 - v0.6.7: extended S3 bug fix to AT&T model
