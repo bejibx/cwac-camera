@@ -32,8 +32,11 @@ import android.view.OrientationEventListener;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
-import java.io.IOException;
+import android.view.WindowManager;
+
 import com.commonsware.cwac.camera.CameraHost.FailureReason;
+
+import java.io.IOException;
 
 public class CameraView extends ViewGroup implements AutoFocusCallback {
   static final String TAG="CWAC-Camera";
@@ -51,11 +54,13 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
   private boolean isDetectingFaces=false;
   private boolean isAutoFocusing=false;
   private int lastPictureOrientation=-1;
+  private ContextWrapper contextWrapper;
 
   public CameraView(Context context) {
     super(context);
 
     onOrientationChange=new OnOrientationChange(context.getApplicationContext());
+    contextWrapper = new ContextWrapper(context);
   }
 
   public CameraView(Context context, AttributeSet attrs) {
@@ -66,6 +71,7 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
     super(context, attrs, defStyle);
 
     onOrientationChange=new OnOrientationChange(context.getApplicationContext());
+    contextWrapper = new ContextWrapper(context);
 
     if (context instanceof CameraHostProvider) {
       setHost(((CameraHostProvider)context).getCameraHost());
@@ -637,8 +643,8 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
     return(rotation);
   }
 
-  Activity getActivity() {
-    return((Activity)getContext());
+  ContextWrapper getActivity() {
+    return contextWrapper;
   }
 
   private class OnOrientationChange extends OrientationEventListener {
@@ -713,4 +719,38 @@ public class CameraView extends ViewGroup implements AutoFocusCallback {
       }
     }
   }
+
+    private class ContextWrapper
+    {
+        private final boolean contextIsActivity;
+
+        public ContextWrapper(Context wrappedContext)
+        {
+            contextIsActivity = wrappedContext instanceof Activity;
+        }
+
+        public WindowManager getWindowManager()
+        {
+            Context wrappedContext = getContext();
+            if (contextIsActivity)
+                return ((Activity) wrappedContext).getWindowManager();
+            else
+                return (WindowManager) wrappedContext.getSystemService(Context.WINDOW_SERVICE);
+        }
+
+        public int getRequestedOrientation()
+        {
+            if (contextIsActivity)
+                return ((Activity) getContext()).getRequestedOrientation();
+            else
+                return ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+        }
+
+        public void setRequestedOrientation(int requestedScreenOrientation)
+        {
+            if (contextIsActivity)
+                ((Activity) getContext()).setRequestedOrientation(requestedScreenOrientation);
+            // else do nothing
+        }
+    }
 }
